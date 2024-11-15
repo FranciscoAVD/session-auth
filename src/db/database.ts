@@ -21,4 +21,4 @@ if (env.NODE_ENV === 'production') {
     database = global.database;
 }
 
-export { database, pg };
+export { database as db, pg };
