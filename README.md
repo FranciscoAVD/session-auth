@@ -1,6 +1,11 @@
-# Template for running Drizzle with Postgresql container
+# Boilerplate Session authentication with email verification
 
-## Run docker compose up to create and run the container
+## Requirements
+- Have docker desktop installed
+- Have resend account
 
-### Script in package.json for pushing the schema as db:push
-### Script in package.json for viewing the database as db:studio
+### Set up
+1. `npm install`
+2. `docker compose up`
+3. `npm run db:push`
+4. `npm run db:studio` (Can visually verify that the schema was successfully created)
