@@ -3,11 +3,9 @@
 import {redirect} from "next/navigation"
 import { addUser, getUser } from "@/db/users";
 import { deleteSession, getSession } from "@/db/sessions";
-import { cookies } from "next/headers";
-import { env } from "@/env";
 import { hashPassword, isSamePassword } from "@/lib/utils/encryption";
-import { encodeSessionToken, executeSessionFlow } from "@/lib/utils/session";
-import { deleteSessionCookie } from "@/lib/utils/cookies";
+import { generateSessionId, executeSessionFlow, invalidateSession } from "@/lib/utils/session";
+import { deleteSessionCookie, getSessionCookie } from "@/lib/utils/cookies";
 import { signInSchema, signUpSchema } from "../schemas";
 
 
@@ -33,15 +31,13 @@ export async function signIn(prevState:TAuthResponse, formData: FormData): Promi
   //Validating user credentials
   const user = await getUser(data.email);
   if (!user || !user.password) {
-    console.log("no user with that email")
     return {
       success: false,
       errors: { email: ["Email or password incorrect"], password: ["Email or password incorrect"] },
     };
   }
-  const isMatch = await isSamePassword(user, data.password);
+  const isMatch = await isSamePassword(user.password, data.password);
   if (!isMatch) {
-    console.log("passwords did not match")
     return {
       success: false,
       errors: { email: ["Email or password incorrect"], password: ["Email or password incorrect"] },
@@ -56,19 +52,17 @@ export async function signIn(prevState:TAuthResponse, formData: FormData): Promi
 
 export async function signOut(): Promise<void> {
   //get sessionId from cookie
-  const cookie = cookies().get(env.SESSION_NAME);
+  const cookie = getSessionCookie();
   if (!cookie || !cookie.value) return;
   //validate session
-  const sessionId = encodeSessionToken(cookie.value);
-  const session = await getSession(sessionId);
+  const session = await getSession(generateSessionId(cookie.value));
   if (!session) return;
   //delete session record and cookie
-  await deleteSession(session.id);
-  deleteSessionCookie();
+  await invalidateSession(session.id);
   redirect("/sign-in")
 }
 
-export async function signup(prevState:TAuthResponse, formData: FormData): Promise<TAuthResponse> {
+export async function signUp(prevState:TAuthResponse, formData: FormData): Promise<TAuthResponse> {
   const formObject: Record<string, string> = {};
   formData.forEach((value, key) => {
     formObject[key] = value.toString();
@@ -91,8 +85,7 @@ export async function signup(prevState:TAuthResponse, formData: FormData): Promi
   const hash = await hashPassword(data.password);
   const userId = await addUser({
     email: data.email,
-    password: hash.hashedPassword,
-    salt: hash.salt,
+    password: hash,
   });
 
   await executeSessionFlow(userId);
