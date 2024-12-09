@@ -2,13 +2,13 @@
 import {useEffect} from "react";
 import { useFormStatus, useFormState } from "react-dom";
 import { useRouter } from "next/navigation";
-import { signup } from "@/lib/actions/auth";
+import { signUp } from "@/lib/actions/auth";
 import Link from "next/link";
 
 export default function SignUpPage() {
   const router = useRouter();
   const {pending} = useFormStatus();
-  const [state, formAction] = useFormState(signup,{
+  const [state, formAction] = useFormState(signUp,{
     success: false,
     errors: {
       email: [],
