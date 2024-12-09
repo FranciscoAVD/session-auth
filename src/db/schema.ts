@@ -12,7 +12,6 @@ export const userTable = pgTable("user", {
   id: serial("id").primaryKey(),
   email: varchar("email", { length: 255 }).unique().notNull(),
   password: varchar("password", { length: 255 }).notNull(),
-  salt: varchar("salt", { length: 255 }).notNull(),
   emailVerified: boolean("email_verified").default(false),
 });
 
