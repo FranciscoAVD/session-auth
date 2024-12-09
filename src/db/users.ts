@@ -16,11 +16,10 @@ export async function getUser(email: string): Promise<TUser | undefined> {
 export async function addUser(data: {
   email: string;
   password: string;
-  salt: string;
 }): Promise<number> {
   const [userId] = await db
     .insert(userTable)
-    .values({ email: data.email, password: data.password, salt: data.salt })
+    .values({ email: data.email, password: data.password })
     .returning({ id: userTable.id });
   return userId.id;
 }
@@ -28,14 +27,13 @@ export async function addUser(data: {
 export async function updateUserPassword(
   userId: number,
   newPassword: string,
-  newSalt: string
 ): Promise<void> {
   await db
     .update(userTable)
-    .set({ password: newPassword, salt: newSalt})
+    .set({ password: newPassword })
     .where(eq(userTable.id, userId));
 }
 
 export async function deleteUser(userId: number) {
-    await db.delete(userTable).where(eq(userTable.id, userId))
+  await db.delete(userTable).where(eq(userTable.id, userId));
 }

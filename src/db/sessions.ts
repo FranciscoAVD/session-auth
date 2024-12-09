@@ -1,18 +1,17 @@
 import { eq } from "drizzle-orm";
 import { db } from "./database";
 import { sessionTable, TSession } from "./schema";
-import { getOneWeekFromNow } from "@/lib/utils";
 
 //TODO: Wrap db calls in try catch to handle unexpected errors
 
 export async function addSession(
   userId: number,
-  token: string,
+  sessionId: string,
   expires: Date
 ): Promise<TSession> {
   const [session] = await db
     .insert(sessionTable)
-    .values({ id: token, userId: userId, expiresAt: expires })
+    .values({ id: sessionId, userId: userId, expiresAt: expires })
     .returning();
   return session;
 }
