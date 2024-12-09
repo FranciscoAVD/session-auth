@@ -1,6 +1,19 @@
+"use client";
+import {useEffect} from "react";
+import {useRouter} from "next/navigation";
+import {useFormStatus, useFormState} from "react-dom";
+import {signIn} from "@/lib/actions/auth";
+
 import Link from "next/link";
 
 export default function SigninPage() {
+  const router = useRouter();
+  const [state, formAction] = useFormState(signIn, {success:false, errors:{}})
+  useEffect(()=>{
+    if(state.success){
+      router.push("/dashboard");
+    }
+  },[state])
   return (
     <main className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -10,7 +23,7 @@ export default function SigninPage() {
       </div>
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form action="#" method="POST" className="space-y-6">
+        <form action={formAction} method="POST" className="space-y-6">
           <div>
             <label
               htmlFor="email"
@@ -28,6 +41,7 @@ export default function SigninPage() {
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
               />
             </div>
+            {state.errors?.email && <span className="text-red-500">{state.errors.email[0]}</span>}
           </div>
 
           <div>
@@ -56,6 +70,7 @@ export default function SigninPage() {
                 autoComplete="current-password"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
               />
+              {state.errors?.password && <span className="text-red-500">{state.errors.password[0]}</span>}
             </div>
           </div>
 
